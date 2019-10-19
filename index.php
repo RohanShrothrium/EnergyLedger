@@ -22,6 +22,12 @@
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
+<style>
+body{
+  background: url('images/wallpaper.jpg');
+  background-attachment: fixed;
+}
+</style>
 <body>
 	
 	<div class="limiter">

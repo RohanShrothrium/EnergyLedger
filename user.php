@@ -15,53 +15,12 @@
 	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
-	<script>
-window.onload = function () {
-
-var chart = new CanvasJS.Chart("chartContainer", {
-	// theme: "dark2", // "light2", "dark1", "dark2"
-	animationEnabled: true,  
-	title:{
-		text: ""
-	},
-	axisY: {
-		title: "Units Sold",
-		suffix: "MWh",
-	},
-	data: [{
-		lineColor: 'green',
-		color: 'green',
-		yValueFormatString: "#,### Units",
-		xValueFormatString: "YYYY",
-		type: "spline",
-		dataPoints: [
-			{x: new Date(2002, 0), y: 30},
-			{x: new Date(2003, 0), y: 31.5},
-			{x: new Date(2004, 0), y: 35},
-			{x: new Date(2005, 0), y: 29},
-			{x: new Date(2006, 0), y: 32},
-		]
-	},
-	{
-		lineColor: 'red',
-		color: 'red',
-		yValueFormatString: "#,### Units",
-		xValueFormatString: "YYYY",
-		type: "spline",
-		dataPoints: [
-			{x: new Date(2002, 0), y: 28},
-			{x: new Date(2003, 0), y: 27},
-			{x: new Date(2004, 0), y: 25},
-			{x: new Date(2005, 0), y: 18},
-			{x: new Date(2006, 0), y: 10},
-		]
-	}]
-});
-chart.render();
-
-}
-</script>
 </head>
+<style>
+body{
+  background: url('images/skyrim.jpg');
+  background-attachment: fixed;
+}</style>
 <body>
 	<style>
 		.content{
@@ -77,7 +36,6 @@ chart.render();
 			<div class='content' style=''>
 				<h1 class="text-center"> Welcome <?php echo $_SESSION['user']; ?>!</h1>
 				<div class="row py-5 justify-content-around">
-					<div class='col' id="chartContainer" style="height:200px;"></div>
 					<div class="col text-right">
 						<h3>Tokens produced</h3>
 						<br>
