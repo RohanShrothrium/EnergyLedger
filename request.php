@@ -13,45 +13,17 @@
 	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 	
 </head>
 <style>
 body{
   background: url('images/skyrim.jpg');
   background-attachment: fixed;
-  background-size: cover;
-}
-.col.mx-3 > a {
-	position: relative;
-  color: #000;
-  text-decoration: none;
-}
-
-.col.mx-3 > a:hover {
-	color: #000;
-}
-
-.col.mx-3 > a:before {
-	content: "";
-	position: absolute;
-	width: 100%;
-	height: 2px;
-	bottom: 0;
-	left: 0;
-	background-color: #fff;
-	visibility: hidden;
-	-webkit-transform: scaleX(0);
-	transform: scaleX(0);
-	-webkit-transition: all 0.3s ease-in-out 0s;
-	transition: all 0.3s ease-in-out 0s;
-}
-
-.col.mx-3 > a:hover:before {
-	visibility: visible;
-  -webkit-transform: scaleX(1);
-  transform: scaleX(1);
-}
-</style>
+}</style>
 
 <body>
 	<style>
@@ -62,7 +34,13 @@ body{
 			width:1000px;
 			margin-bottom: 50px;
 		}
-		
+		a{
+			font-size: 1.2em;
+			color: white;
+		}
+		a:hover{
+			color: blue;
+		}
 		.alert-success{
 			background: #00c853;
 			border-radius: 7px;
@@ -75,14 +53,25 @@ body{
 		<p style='color:white;'>
 	<?php 
 	session_start();
+	$_SESSION['invalid'] = 0;
 	if($_SERVER['REQUEST_METHOD']=="POST"){
 		$user = $_SESSION['user'];
-		$tmp = 'cd node_sdk; node invoke.js ChangeOwnership %s %s %s %s %s';
-		if($_POST['color']=='green'){//send green tokens
-			$cmd = sprintf($tmp, $user, 'user', $_POST['buyer'], '1', $_POST['num']);
+
+		if(isset($_POST['num'])) {
+			if($_POST['num'] < 1.5 || $_POST['num'] > 4.5) {
+				$_SESSION['invalid'] = 1;
+			} else {
+				$_SESSION['invalid'] = 2;
+			}
+		}
+
+		if($_POST['color']=='green'){
+			// MINT GREEN TOKEN
+			$cmd = sprintf($tmp, $_POST['UserID'], '1');
 			echo shell_exec($cmd);
-		}else{
-			$cmd = sprintf($tmp, $user, 'user', $_POST['buyer'], '0', $_POST['num']);
+		} else{
+			// MINT RED TOKEN
+			$cmd = sprintf($tmp, $_POST['UserID'], '0');
 			echo shell_exec($cmd);
 		}
 	}
@@ -95,81 +84,10 @@ body{
 				<a href="/EnergyLedger" style="float: right" class="btn btn-danger">
           			<span class="glyphicon glyphicon-log-out"></span> Log out
         		</a>
-
-				<a href="/EnergyLedger/request.php" class="btn btn-success">
-          			<span class="glyphicon glyphicon-log-out"></span> Sell Units
-        		</a>
-				<div class="row py-5 justify-content-around">
-					<?php
-						//get user json
-						$cmd = shell_exec('cd node_sdk;node query.js Query '.$_SESSION['user']);
-						// print_r($cmd)
-						$cmd = json_decode($cmd, true);
-					?>
-					<div id='' class="col text-center">
-					<div id="chartContainer" style="height: 370px; width: 100%;"></div>
-						
-							<h3>Tokens Owned</h3><br>
-						<div class="row">
-							<div id="greenCount" class="col mx-3 alert-success">
-								<?php
-									if(!empty($cmd['GoListGreen'])){
-										foreach ($cmd['GoListGreen'] as $value) {
-											if(!$value=='0'){
-											echo '<a style="color: white; font-weight: bold;" href="th.php?id='.$value.'".>'.$value.'</a><br>';}
-										}
-									}
-								?>
-								
-							</div>
-							<div id="redCount" class="col mx-3 alert-danger">
-								<?php
-									if(!empty($cmd['GoListRed'])){
-										foreach ($cmd['GoListRed'] as $value) {
-											if(!$value=='0'){
-											echo '<a style="color: white; font-weight: bold;" href="th.php?id='.$value.'".>'.$value.'</a><br>';}
-										}
-									}
-								?>
-								
-								
-							</div>
-						</div>
-						
-					</div>
-				</div>
+				
 			</div>
-			<script>
-				function getRedCount() {
-					return 100 * document.getElementById("redCount").childElementCount / (document.getElementById("redCount").childElementCount + document.getElementById("greenCount").childElementCount);
-				}
-				function getGreenCount() {
-					return 100 * document.getElementById("greenCount").childElementCount / (document.getElementById("redCount").childElementCount + document.getElementById("greenCount").childElementCount);
-				}
-				window.onload = function() {
-
-				var chart = new CanvasJS.Chart("chartContainer", {
-					animationEnabled: true,
-					title: {
-						text: "Fractions of Energy used"
-					},
-					data: [{
-						type: "pie",
-						startAngle: 0,
-						yValueFormatString: "##0.00\"%  \"",
-						indexLabel: "{label} {y}",
-						dataPoints: [
-							{y: getRedCount(), label: "Non-Renewable", color: "rgba(255,12,32,.8)"},
-							{y: getGreenCount(), label: "Renewable", color: "rgba(0,200,83,1)"},
-						]
-					}]
-				});
-				chart.render();
-
-				}
-			</script>
 			<div class='content'>
-				<h1 class="text-center">Send Tokens</h1>
+				<h1 class="text-center">Request Tokens</h1>
 				<div class="row py-5 justify-content-around">
 					<div class="login100-pic js-tilt" data-tilt>
 						<img id="electric_img" src="Logo/electric_orange.png" alt="IMG">
@@ -177,23 +95,43 @@ body{
 
 					<form method="POST">
 
-						<div class="wrap-input100">
+						<!-- <div class="wrap-input100">
 							<input class="input100" type="text" name="buyer" placeholder="Buyer">
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
 								<i class="fa fa-address-book" aria-hidden="true"></i>
 							</span>
-						</div>
+						</div> -->
 
+						<!-- <div class="wrap-input100">
+							<input class="input100" type="text" name="num" placeholder="Number of Units">
+							<span class="focus-input100"></span>
+							<span class="symbol-input100">
+								<i class="fa fa-hashtag"></i>
+							</span>
+						</div> -->
+						<?php
+							if($_SESSION['invalid'] == 1) {
+								echo '<div class="alert alert-warning" role="alert">
+										<strong>Anomaly Detected!</strong> This submission will be reported.
+						  			  </div>';
+							} else if($_SESSION['invalid'] == 2) {
+								echo '<div class="alert alert-success" role="alert">
+										<strong>Submitted!</strong> Request submitted to marketplace.
+						  			  </div>';
+							}
+						?>
 						<div class="wrap-input100">
-							<input class="input100" type="text" name="num" placeholder="tokens">
+							<input class="input100" type="text" name="num" placeholder="Units to be sold">
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
 								<i class="fa fa-hashtag"></i>
 							</span>
 						</div>
-
+						
+						
 						<div class="wrap-input100">
+						
 						<select onchange="toggleImage()" class='input100' name="color"> // Initializing Name With An Array
 							<option value="red">Red</option>
 							<option value="green">Green</option>
@@ -224,6 +162,7 @@ body{
 		$('.js-tilt').tilt({
 			scale: 1.1
 		})
+
 		function toggleImage() {
 			img_ele = document.getElementById('electric_img');
 			console.log(img_ele.src);
@@ -241,7 +180,6 @@ body{
 		}
 	</script>
 	<script src="js/main.js"></script>
-	
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </body>
 </html>

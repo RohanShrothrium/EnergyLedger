@@ -13,45 +13,12 @@
 	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
-	
 </head>
 <style>
 body{
   background: url('images/skyrim.jpg');
   background-attachment: fixed;
-  background-size: cover;
-}
-.col.mx-3 > a {
-	position: relative;
-  color: #000;
-  text-decoration: none;
-}
-
-.col.mx-3 > a:hover {
-	color: #000;
-}
-
-.col.mx-3 > a:before {
-	content: "";
-	position: absolute;
-	width: 100%;
-	height: 2px;
-	bottom: 0;
-	left: 0;
-	background-color: #fff;
-	visibility: hidden;
-	-webkit-transform: scaleX(0);
-	transform: scaleX(0);
-	-webkit-transition: all 0.3s ease-in-out 0s;
-	transition: all 0.3s ease-in-out 0s;
-}
-
-.col.mx-3 > a:hover:before {
-	visibility: visible;
-  -webkit-transform: scaleX(1);
-  transform: scaleX(1);
-}
-</style>
+}</style>
 
 <body>
 	<style>
@@ -62,7 +29,13 @@ body{
 			width:1000px;
 			margin-bottom: 50px;
 		}
-		
+		a{
+			font-size: 1.2em;
+			color: white;
+		}
+		a:hover{
+			color: blue;
+		}
 		.alert-success{
 			background: #00c853;
 			border-radius: 7px;
@@ -77,13 +50,16 @@ body{
 	session_start();
 	if($_SERVER['REQUEST_METHOD']=="POST"){
 		$user = $_SESSION['user'];
-		$tmp = 'cd node_sdk; node invoke.js ChangeOwnership %s %s %s %s %s';
-		if($_POST['color']=='green'){//send green tokens
-			$cmd = sprintf($tmp, $user, 'user', $_POST['buyer'], '1', $_POST['num']);
-			echo shell_exec($cmd);
-		}else{
-			$cmd = sprintf($tmp, $user, 'user', $_POST['buyer'], '0', $_POST['num']);
-			echo shell_exec($cmd);
+		$tmp = 'cd node_sdk;node invoke.js Mint %s %s 20/10/2019';
+
+		if($_POST['color']=='green'){
+			// MINT GREEN TOKEN
+			$cmd = sprintf($tmp, $_POST['UserID'], '1');
+			shell_exec($cmd);
+		} else{
+			// MINT RED TOKEN
+			$cmd = sprintf($tmp, $_POST['UserID'], '0');
+			shell_exec($cmd);
 		}
 	}
 	?>
@@ -95,81 +71,23 @@ body{
 				<a href="/EnergyLedger" style="float: right" class="btn btn-danger">
           			<span class="glyphicon glyphicon-log-out"></span> Log out
         		</a>
-
-				<a href="/EnergyLedger/request.php" class="btn btn-success">
-          			<span class="glyphicon glyphicon-log-out"></span> Sell Units
-        		</a>
-				<div class="row py-5 justify-content-around">
-					<?php
-						//get user json
-						$cmd = shell_exec('cd node_sdk;node query.js Query '.$_SESSION['user']);
-						// print_r($cmd)
-						$cmd = json_decode($cmd, true);
-					?>
-					<div id='' class="col text-center">
-					<div id="chartContainer" style="height: 370px; width: 100%;"></div>
-						
-							<h3>Tokens Owned</h3><br>
-						<div class="row">
-							<div id="greenCount" class="col mx-3 alert-success">
-								<?php
-									if(!empty($cmd['GoListGreen'])){
-										foreach ($cmd['GoListGreen'] as $value) {
-											if(!$value=='0'){
-											echo '<a style="color: white; font-weight: bold;" href="th.php?id='.$value.'".>'.$value.'</a><br>';}
-										}
-									}
-								?>
-								
-							</div>
-							<div id="redCount" class="col mx-3 alert-danger">
-								<?php
-									if(!empty($cmd['GoListRed'])){
-										foreach ($cmd['GoListRed'] as $value) {
-											if(!$value=='0'){
-											echo '<a style="color: white; font-weight: bold;" href="th.php?id='.$value.'".>'.$value.'</a><br>';}
-										}
-									}
-								?>
-								
-								
-							</div>
-						</div>
-						
-					</div>
-				</div>
+				<br>
+				<br>
+				<?php
+					if(!isset($_POST['visited'])) {
+						echo '<div class="alert alert-info" role="alert">
+								<strong>Notice!</strong> You have a request from <strong>GMR</strong> for a Green Token pending.
+							</div>';
+					} else {
+						echo '<div class="alert alert-success" role="alert">
+								<strong>Success!</strong> Green Token generated for <strong>GMR</strong>.
+							</div>';
+					}
+				?>
+				
 			</div>
-			<script>
-				function getRedCount() {
-					return 100 * document.getElementById("redCount").childElementCount / (document.getElementById("redCount").childElementCount + document.getElementById("greenCount").childElementCount);
-				}
-				function getGreenCount() {
-					return 100 * document.getElementById("greenCount").childElementCount / (document.getElementById("redCount").childElementCount + document.getElementById("greenCount").childElementCount);
-				}
-				window.onload = function() {
-
-				var chart = new CanvasJS.Chart("chartContainer", {
-					animationEnabled: true,
-					title: {
-						text: "Fractions of Energy used"
-					},
-					data: [{
-						type: "pie",
-						startAngle: 0,
-						yValueFormatString: "##0.00\"%  \"",
-						indexLabel: "{label} {y}",
-						dataPoints: [
-							{y: getRedCount(), label: "Non-Renewable", color: "rgba(255,12,32,.8)"},
-							{y: getGreenCount(), label: "Renewable", color: "rgba(0,200,83,1)"},
-						]
-					}]
-				});
-				chart.render();
-
-				}
-			</script>
 			<div class='content'>
-				<h1 class="text-center">Send Tokens</h1>
+				<h1 class="text-center">Produce Tokens</h1>
 				<div class="row py-5 justify-content-around">
 					<div class="login100-pic js-tilt" data-tilt>
 						<img id="electric_img" src="Logo/electric_orange.png" alt="IMG">
@@ -177,22 +95,28 @@ body{
 
 					<form method="POST">
 
-						<div class="wrap-input100">
+						<!-- <div class="wrap-input100">
 							<input class="input100" type="text" name="buyer" placeholder="Buyer">
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
 								<i class="fa fa-address-book" aria-hidden="true"></i>
 							</span>
-						</div>
+						</div> -->
 
+						<!-- <div class="wrap-input100">
+							<input class="input100" type="text" name="num" placeholder="Number of Units">
+							<span class="focus-input100"></span>
+							<span class="symbol-input100">
+								<i class="fa fa-hashtag"></i>
+							</span>
+						</div> -->
 						<div class="wrap-input100">
-							<input class="input100" type="text" name="num" placeholder="tokens">
+							<input class="input100" type="text" name="UserID" placeholder="Enter UserID">
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
 								<i class="fa fa-hashtag"></i>
 							</span>
 						</div>
-
 						<div class="wrap-input100">
 						<select onchange="toggleImage()" class='input100' name="color"> // Initializing Name With An Array
 							<option value="red">Red</option>
@@ -203,6 +127,8 @@ body{
 								<i class="fa fa-tint"></i>
 							</span>
 						</div>
+
+						<input type="hidden" name="visited" value="true">
 						
 						<div class="container-login100-form-btn">
 							<button class="login100-form-btn">
@@ -228,6 +154,7 @@ body{
 			img_ele = document.getElementById('electric_img');
 			console.log(img_ele.src);
 			if(img_ele.src == "http://localhost/EnergyLedger/Logo/electric_orange.png") {
+
 				var div = $("#electric_img");
 				div.animate({opacity: '0'}, 200);
 				setTimeout(function() { document.getElementById('electric_img').src = "http://localhost/EnergyLedger/Logo/electric_green.png"; }, 200);
@@ -241,7 +168,6 @@ body{
 		}
 	</script>
 	<script src="js/main.js"></script>
-	
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </body>
 </html>
