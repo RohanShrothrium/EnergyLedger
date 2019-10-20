@@ -1,6 +1,4 @@
-<?php 
-	session_start();
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +19,7 @@ body{
   background: url('images/skyrim.jpg');
   background-attachment: fixed;
 }</style>
+
 <body>
 	<style>
 		.content{
@@ -30,19 +29,77 @@ body{
 			width:1000px;
 			margin-bottom: 50px;
 		}
+		a{
+			font-size: 1.2em;
+			color: white;
+		}
+		a:hover{
+			color: blue;
+		}
+		.alert-success{
+			background: #00c853;
+			border-radius: 7px;
+		}
+		.alert-danger{
+			background: #e53935;
+			border-radius: 7px;
+		}
 	</style>
+		<p style='color:white;'>
+	<?php 
+	session_start();
+	if($_SERVER['REQUEST_METHOD']=="POST"){
+		$user = $_SESSION['user'];
+		$tmp = 'cd node_sdk; node invoke.js ChangeOwnership %s %s %s %s %s';
+		if($_POST['color']=='green'){//send green tokens
+			$cmd = sprintf($tmp, $user, $user, $_POST['buyer'], '1', $_POST['num']);
+			echo shell_exec($cmd);
+		}else{
+			$cmd = sprintf($tmp, $user, $user, $_POST['buyer'], '0', $_POST['num']);
+			echo shell_exec($cmd);
+		}
+	}
+	?>
+	</p>
 	<div class="limiter">
 		<div class="container-login100">
 			<div class='content' style=''>
 				<h1 class="text-center"> Welcome <?php echo $_SESSION['user']; ?>!</h1>
+				<a href="/EnergyLedger" style='color: blue;'>logout</a>
 				<div class="row py-5 justify-content-around">
-					<div class="col text-right">
-						<h3>Tokens produced</h3>
-						<br>
-						<p>FF0fOWX3YWeOLbyncYpLI2Wq4NIWhpnC</p>
-						<p>iZ1ZxcVxL4M9EdbvPDjn9daNmgza2Dxa</p>
-						<p>bMjkmfTk9XJB2p5SgFhsZ2NXqS2Z4RBm</p>
-						<p>OHddb5VWhfynNSZu0KZggF42ll6P6LNb</p>
+					<?php
+						//get user json
+						$cmd = shell_exec('cd node_sdk;node query.js Query '.$_SESSION['user']);
+						$cmd = json_decode($cmd, true);
+					?>
+					<div id='' class="col text-center">
+						
+							<h3>Tokens produced</h3><br>
+						<div class="row">
+							<div class="col mx-3 alert-success">
+								<?php
+									if(!empty($cmd['GoListGreen'])){
+										foreach ($cmd['GoListGreen'] as $value) {
+											if(!$value=='0'){
+											echo '<a href="th.php?id='.$value.'".>'.$value.'</a><br>';}
+										}
+									}
+								?>
+								
+							</div>
+							<div class="col mx-3 alert-danger">
+								<?php
+									if(!empty($cmd['GoListRed'])){
+										foreach ($cmd['GoListRed'] as $value) {
+											if(!$value=='0'){
+											echo '<a href="th.php?id='.$value.'".>'.$value.'</a><br>';}
+										}
+									}
+								?>
+								
+								
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -64,7 +121,7 @@ body{
 						</div>
 
 						<div class="wrap-input100">
-							<input class="input100" type="text" name="green" placeholder="green token">
+							<input class="input100" type="text" name="num" placeholder="tokens">
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
 								<i class="fa fa-hashtag"></i>
@@ -72,10 +129,13 @@ body{
 						</div>
 
 						<div class="wrap-input100">
-							<input class="input100" type="text" name="red" placeholder="red tokens">
+						<select class='input100' name="color"> // Initializing Name With An Array
+							<option value="red">Red</option>
+							<option value="green">Green</option>
+						</select>
 							<span class="focus-input100"></span>
 							<span class="symbol-input100">
-								<i class="fa fa-hashtag"></i>
+								<i class="fa fa-tint"></i>
 							</span>
 						</div>
 						
