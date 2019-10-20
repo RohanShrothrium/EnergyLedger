@@ -5,17 +5,18 @@ _Energy management tool to track carbon footprint_
 ## Steps to run the project
 1. Install Hyperledger Fabric
 2. Clone this repo into your PC's PHP executable path (which is _/var/www/html/_ by default)
-3. **Rename the main folder, GreenLedger, to EnergyLedger (as all our hyperlinks are configured to EnergyLedger and not GreenLedger)**.
+3. **Rename the folder which you just cloned (GreenLedger) to EnergyLedger (as all our hyperlinks are configured to EnergyLedger and not GreenLedger)**.
 4. Goto http://localhost/EnergyLedger to find the login page.
 
 ## To create a user
 Invoke transactions to create a user of choice in the consortium
+
 `cd node_sdk/; node invoke.js CreateUser <UserID> <Username> <Password>; cd ../`
 
-Kindly use the name value for UserID and Username and use the value `user` for password.
+Kindly use the same value for UserID and Username and use the value `user` for password.
 
 ## To login
-1. Use the User accountwhich was created.
+1. Use the User account which was created.
 2. If the user is a Producer or a consumer, kindly enter the password as 'user' and if the user is a regulatory body, kindly use the password 'produce'.
 
 ## Usage as a Producer
@@ -26,4 +27,4 @@ Kindly use the name value for UserID and Username and use the value `user` for p
 1. Whichever Producer requested for the token (green or red), can be granted those tokens by the regulatory body after a simple (as of now) anomaly check which rejects more than 5 or less than 2 tokens (as they are outliers and it seems unnatural for the producers to produce such energy). The anomaly check is implemented just as a notion of security, though it doesn't serve much purpose as of now.
 
 ## Usage as a Consumer
-1. Consumers can strike a deal in real life and get their units and GO tokens transferred to them over the chain.
+1. Consumers can purchase the energy from the regulatory body or the open market by just verifying the energy received physically and obtaining the ownership of the respective GO tokens
