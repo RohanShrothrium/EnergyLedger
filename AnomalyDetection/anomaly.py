@@ -20,4 +20,8 @@ clf.fit(X_train)
 # prediction of a datapoint category outlier or inlier
 y_pred = clf.predict(X_train)
 
-output = clf.predict(data)
+output = clf.predict([[data]])
+
+print(output[0])
+with open('anomaly.txt', 'w') as file:
+    file.write(str(output[0]))
